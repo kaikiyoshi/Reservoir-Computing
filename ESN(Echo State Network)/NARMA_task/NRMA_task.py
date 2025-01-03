@@ -1,15 +1,6 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Fri Apr 21 23:02:19 2023
-
-@author: yoshi
-"""
-
 import numpy as np
 import networkx as nx
 import matplotlib.pyplot as plt
-
-
 
 # NARMAモデルのパラメータ
 m = 10
@@ -49,7 +40,6 @@ plt.show()
 
 
 
-
 # 入力層
 N_u = 1
 N_x = 500
@@ -73,7 +63,6 @@ def Input(u_in_train_input):
 param u_in_train_input: 入力層への入力ベクトル
 param u_in: 更新前の状態ベクトル（リザバーへの入力ベクトル）
 '''
-
 
 
 # リザバー層
@@ -135,15 +124,11 @@ for i in range(len(u)):
 # 教師出力データ行列
 teachCollectMat = d
 
-
 # 学習（疑似逆行列）
 Wout = np.dot(teachCollectMat.T, np.linalg.pinv(stateCollectMat.T))
 
-
-
 # 予測出力
 Y_pred_train = np.dot(Wout, stateCollectMat.T)
-
 
 # データ全範囲グラフ描画
 x = np.arange(0,len(u),1)
@@ -153,7 +138,6 @@ plt.plot(x,y)
 x = np.arange(0,len(u),1)
 y = Y_pred_train.reshape(len(u),)
 plt.plot(x,y)
-
 plt.show()
 
 # データ後半グラフ描画
@@ -165,7 +149,6 @@ x = np.arange(0,len(u),1)
 y = Y_pred_train.reshape(len(u),)
 plt.xlim(100,200)
 plt.plot(x,y)
-
 plt.show()
 
 # 評価（テスト誤差RMSE, NRMSE）
@@ -173,6 +156,3 @@ RMSE = np.sqrt(((d - Y_pred_train) ** 2).mean())
 NRMSE = RMSE/np.sqrt(np.var(d))
 print('RMSE =', RMSE)
 print('NRMSE =', NRMSE)
-
-
-
