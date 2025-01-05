@@ -1,7 +1,7 @@
 import numpy as np
 import networkx as nx
 import matplotlib.pyplot as plt
-from tqdm import tqdm  # tqdmをインポート
+from tqdm import tqdm
 
 # NARMAモデルのパラメータ
 n = 10
@@ -23,12 +23,12 @@ for i in range(n, T):
 d = np.array(d)
 
 # データ分割
-u_train, u_test = u[n*2:T//2], u[T//2:]
-d_train, d_test = d[n*2:T//2], d[T//2:]
+u_train, u_test = u[n*2:T//2], u[T//2-n*2:]
+d_train, d_test = d[n*2:T//2], d[T//2-n*2:]
 
 # 入力層
 N_u = 1
-N_x = 1000
+N_x = 3000
 input_scale = 1
 
 # 入力結合重み行列Winの生成
@@ -83,43 +83,52 @@ stateCollectMat_train = compute_reservoir_states(u_train, W, leaking_rate, activ
 stateCollectMat_test = compute_reservoir_states(u_test, W, leaking_rate, activation_func)
 
 # リードアウト重みの計算
-Wout = np.dot(d_train.T, np.linalg.pinv(stateCollectMat_train.T))
+Wout_random = np.random.uniform(-0.03, 0.03, N_x) # 未学習のリードアウト重み
+Wout = np.dot(d_train.T, np.linalg.pinv(stateCollectMat_train.T)) # 学習済みのリードアウト重み
 
-# 学習データでの予測
+# 学習データでの予測（未学習重み使用）
+Y_pred_train_random = np.dot(Wout_random, stateCollectMat_train.T)
+
+# 学習データでの予測(学習済み重み使用)
 Y_pred_train = np.dot(Wout, stateCollectMat_train.T)
 
 # テストデータでの予測
 Y_pred_test = np.dot(Wout, stateCollectMat_test.T)
 
-# グラフ描画（学習データ）
-d_train = d_train[n*2:100+n*2]
-Y_pred_train = Y_pred_train[n*2:100+n*2]
-plt.plot(d_train, label="Target (Train)")
-plt.plot(Y_pred_train, label="Prediction (Train)")
-plt.legend()
-plt.title("Train Data Prediction")
-plt.xlabel("Time Step")
-plt.ylabel("Output")
-plt.show()
-
-# グラフ描画（テストデータ）
-d_test = d_test[n*2:100+n*2]
-Y_pred_test = Y_pred_test[n*2:100+n*2]
-plt.plot(d_test, label="Target (Test)")
-plt.plot(Y_pred_test, label="Prediction (Test)")
-plt.legend()
-plt.title("Test Data Prediction")
-plt.xlabel("Time Step")
-plt.ylabel("Output")
-plt.show()
-
 # 評価（RMSE, NRMSE）
-RMSE_train = np.sqrt(((d_train - Y_pred_train) ** 2).mean())
-NRMSE_train = RMSE_train / np.sqrt(np.var(d_train))
-RMSE_test = np.sqrt(((d_test - Y_pred_test) ** 2).mean())
-NRMSE_test = RMSE_test / np.sqrt(np.var(d_test))
+RMSE_train = np.sqrt(((d_train[-100:] - Y_pred_train[-100:]) ** 2).mean())
+NRMSE_train = RMSE_train / np.sqrt(np.var(d_train[-100:]))
+RMSE_test = np.sqrt(((d_test[n*2:100+n*2] - Y_pred_test[n*2:100+n*2]) ** 2).mean())
+NRMSE_test = RMSE_test / np.sqrt(np.var(d_test[n*2:100+n*2]))
 
 print("Train RMSE =", RMSE_train)
 print("Train NRMSE =", NRMSE_train)
 print("Test RMSE =", RMSE_test)
 print("Test NRMSE =", NRMSE_test)
+
+
+# グラフ表示
+u = np.concatenate([u[-100:], u[n*2:100+n*2]])
+d_target = np.concatenate([d_train[-100:], d_test[n*2:100+n*2]])
+Y_pred = np.concatenate([Y_pred_train_random[-100:], Y_pred_test[n*2:100+n*2]])
+plt.rcParams['font.size'] = 13
+fig = plt.figure(figsize=(7, 6), dpi=500)
+plt.subplots_adjust(hspace=0.3)
+x_range = np.arange(-100, 100)
+
+ax1 = fig.add_subplot(2, 1, 1)
+ax1.text(0.14, 1.05, 'Before Training', transform=ax1.transAxes)
+ax1.text(0.64, 1.05, 'After Training', transform=ax1.transAxes)
+plt.plot(x_range, u, color='black')
+plt.ylabel('Input', fontsize=16)
+plt.axvline(x=0, ymin=0, ymax=1, color='k', linestyle=':')
+
+ax2 = fig.add_subplot(2, 1, 2)
+plt.plot(x_range, d_target, label='Target')
+plt.plot(x_range, Y_pred, linestyle='--', label='Prediction')
+plt.xlabel('Time Step', fontsize=16)
+plt.ylabel('Output', fontsize=16)
+plt.legend(bbox_to_anchor=(1, 0), loc='lower right')
+plt.axvline(x=0, ymin=0, ymax=1, color='k', linestyle=':')
+
+plt.show()
