@@ -1,158 +1,125 @@
 import numpy as np
 import networkx as nx
 import matplotlib.pyplot as plt
+from tqdm import tqdm  # tqdmをインポート
 
 # NARMAモデルのパラメータ
-m = 10
-n = m
-a1 = 0.3
-a2 = 0.05
-a3 = 1.5
-a4 = 0.1
+n = 10
+a1, a2, a3, a4 = 0.3, 0.05, 1.5, 0.1
 # データ長
-T = 200
-d = [0]*m
+T = 1000
+d = [0]*n
 
 np.random.seed(seed=0)
 
 # 時系列入力データ生成
 u = np.random.uniform(0, 0.5, T)
-# 時系列入力データ グラフ描画
-x = np.arange(0,200,1)
-y = u.reshape(T,)
-plt.plot(x,y)
-plt.show()
-
 u = u.reshape(-1, 1)
 
 # 時系列目標データ作成
-for i in range(m,T):
-    d_n = a1*d[n-1] + a2*d[n-1]*(np.sum(d[n-m+1:n])) + a3*u[n-m+1]*u[n] + a4
+for i in range(n, T):
+    d_n = a1*d[-1] + a2*d[-1]*np.sum(d[-n:]) + a3*u[i-n]*u[i-1] + a4
     d.append(d_n)
-    n += 1
-
 d = np.array(d)
-# 時系列目標データ グラフ描画
-x = np.arange(0,200,1)
-y = d.reshape(T,)
-plt.plot(x,y)
-plt.show()
 
-
+# データ分割
+u_train, u_test = u[n*2:T//2], u[T//2:]
+d_train, d_test = d[n*2:T//2], d[T//2:]
 
 # 入力層
 N_u = 1
-N_x = 500
+N_x = 1000
 input_scale = 1
-
-'''
-param N_u: 入力次元
-param N_x: リザバーのノード数
-param input_scale: 入力スケーリング
-'''
 
 # 入力結合重み行列Winの生成
 np.random.seed(seed=0)
 Win = np.random.uniform(-input_scale, input_scale, (N_x, N_u))
 
-# 入力結合重み行列Winによる重みづけの関数の定義
 def Input(u_in_train_input):
     u_in = np.dot(Win, u_in_train_input)
     return u_in
-'''
-param u_in_train_input: 入力層への入力ベクトル
-param u_in: 更新前の状態ベクトル（リザバーへの入力ベクトル）
-'''
-
 
 # リザバー層
-N_x = 500
-density = 0.15
+density = 0.20
 rho = 0.9
 activation_func = np.tanh
-leaking_rate = 1
+leaking_rate = 0.9
 seed = 0
-
-'''
-param N_x: リザバーのノード数
-param density: ネットワークの結合密度
-param rho: リカレント結合重み行列のスペクトル半径
-param activation_func: ノードの活性化関数
-param leaking_rate: leaky integratorモデルのリーク率
-param seed: 乱数の種
-'''
 
 # リカレント結合重み行列Wの生成
 # Erdos-Renyiランダムグラフ
-m = int(N_x*(N_x-1)*density/2)  # 総結合数
+m = int(N_x*(N_x-1)*density/2) # 総結合数
 G = nx.gnm_random_graph(N_x, m, seed=seed)
-
 # 行列への変換(結合構造のみ）
 connection = nx.to_numpy_matrix(G)
 W = np.array(connection)
-
 # 非ゼロ要素を一様分布に従う乱数として生成
 rec_scale = 1.0
 np.random.seed(seed=seed)
 W *= np.random.uniform(-rec_scale, rec_scale, (N_x, N_x))
-
 # スペクトル半径の計算
 eigv_list = np.linalg.eig(W)[0]
 sp_radius = np.max(np.abs(eigv_list))
-
 # 指定のスペクトル半径rhoに合わせてスケーリング
 W *= rho / sp_radius
 
-# リザバー状態ベクトルの更新
-alpha = leaking_rate
-x = np.zeros(N_x)  # リザバー状態ベクトルの初期化
+# リザバー状態行列の計算(リザバー状態ベクトルの更新)
+def compute_reservoir_states(u_data, W, alpha, activation_func):
+    stateCollectMat = np.zeros((len(u_data), N_x))
+    x = np.zeros(N_x) # リザバー状態ベクトルの初期化
+    
+    # tqdmを使って進捗バーを表示
+    for i in tqdm(range(len(u_data)), desc="Computing Reservoir States", ncols=100): 
+        u_in = Input(u_data[i])
+        x = (1.0 - alpha) * x + alpha * activation_func(np.dot(W, x) + u_in)
+        stateCollectMat[i] = x
+    
+    return stateCollectMat
 
+# 学習データのリザバー状態行列
+stateCollectMat_train = compute_reservoir_states(u_train, W, leaking_rate, activation_func)
 
-######## データに対して
-# リザバー状態行列
-stateCollectMat = np.empty((0, N_x))
-x = np.zeros(N_x)  # リザバー状態ベクトルの初期化
-for i in range(len(u)):
-    if i%100 == 0:
-        print((i/len(u))*100, '%　完了')
-    if i == len(u) - 1:
-        print('リザバー状態行列の計算完了')
-    u_in = Input(u[i])
-    x = (1.0 - alpha) * x + alpha * activation_func(np.dot(W, x) + u_in)
-    stateCollectMat = np.vstack((stateCollectMat, x))
+# テストデータのリザバー状態行列
+stateCollectMat_test = compute_reservoir_states(u_test, W, leaking_rate, activation_func)
 
-# 教師出力データ行列
-teachCollectMat = d
+# リードアウト重みの計算
+Wout = np.dot(d_train.T, np.linalg.pinv(stateCollectMat_train.T))
 
-# 学習（疑似逆行列）
-Wout = np.dot(teachCollectMat.T, np.linalg.pinv(stateCollectMat.T))
+# 学習データでの予測
+Y_pred_train = np.dot(Wout, stateCollectMat_train.T)
 
-# 予測出力
-Y_pred_train = np.dot(Wout, stateCollectMat.T)
+# テストデータでの予測
+Y_pred_test = np.dot(Wout, stateCollectMat_test.T)
 
-# データ全範囲グラフ描画
-x = np.arange(0,len(u),1)
-y = d.reshape(len(u),)
-plt.plot(x,y)
-
-x = np.arange(0,len(u),1)
-y = Y_pred_train.reshape(len(u),)
-plt.plot(x,y)
+# グラフ描画（学習データ）
+d_train = d_train[n*2:100+n*2]
+Y_pred_train = Y_pred_train[n*2:100+n*2]
+plt.plot(d_train, label="Target (Train)")
+plt.plot(Y_pred_train, label="Prediction (Train)")
+plt.legend()
+plt.title("Train Data Prediction")
+plt.xlabel("Time Step")
+plt.ylabel("Output")
 plt.show()
 
-# データ後半グラフ描画
-x = np.arange(0,len(u),1)
-y = d.reshape(len(u),)
-plt.plot(x,y)
-
-x = np.arange(0,len(u),1)
-y = Y_pred_train.reshape(len(u),)
-plt.xlim(100,200)
-plt.plot(x,y)
+# グラフ描画（テストデータ）
+d_test = d_test[n*2:100+n*2]
+Y_pred_test = Y_pred_test[n*2:100+n*2]
+plt.plot(d_test, label="Target (Test)")
+plt.plot(Y_pred_test, label="Prediction (Test)")
+plt.legend()
+plt.title("Test Data Prediction")
+plt.xlabel("Time Step")
+plt.ylabel("Output")
 plt.show()
 
-# 評価（テスト誤差RMSE, NRMSE）
-RMSE = np.sqrt(((d - Y_pred_train) ** 2).mean())
-NRMSE = RMSE/np.sqrt(np.var(d))
-print('RMSE =', RMSE)
-print('NRMSE =', NRMSE)
+# 評価（RMSE, NRMSE）
+RMSE_train = np.sqrt(((d_train - Y_pred_train) ** 2).mean())
+NRMSE_train = RMSE_train / np.sqrt(np.var(d_train))
+RMSE_test = np.sqrt(((d_test - Y_pred_test) ** 2).mean())
+NRMSE_test = RMSE_test / np.sqrt(np.var(d_test))
+
+print("Train RMSE =", RMSE_train)
+print("Train NRMSE =", NRMSE_train)
+print("Test RMSE =", RMSE_test)
+print("Test NRMSE =", NRMSE_test)
