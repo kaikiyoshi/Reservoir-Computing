@@ -1,10 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Tue Apr 11 17:34:46 2023
-
-@author: yoshi
-"""
-
 import numpy as np
 import networkx as nx
 import matplotlib.pyplot as plt
@@ -22,7 +15,6 @@ def read_sunspot_data(file_name):
             tmp = line.split()
             data = np.hstack((data, float(tmp[3])))  # 3rd column
     return data
-
 
 # 黒点数データ
 sunspots = read_sunspot_data(file_name='SN_ms_tot_V2.0.txt')
@@ -54,8 +46,6 @@ def Input(u_in_train_input):
 param u_in_train_input: 入力層への入力ベクトル
 param u_in: 更新前の状態ベクトル（リザバーへの入力ベクトル）
 '''
-
-
 
 # リザバー層
 N_x = 400
@@ -98,7 +88,6 @@ W *= rho / sp_radius
 # リザバー状態ベクトルの更新
 alpha = leaking_rate
 x = np.zeros(N_x)  # リザバー状態ベクトルの初期化
-
 
 # NRMSEのリスト
 NRMSE_train = []
@@ -216,12 +205,7 @@ for step in step_list:
     
     plt.show()
  
-
-
 for i, step in enumerate(step_list):
     print(step, 'ステップ先予測')
     print('訓練誤差：NRMSE =', NRMSE_train[i])
     print('検証誤差：NRMSE =', NRMSE_test[i])
-
-
-    
