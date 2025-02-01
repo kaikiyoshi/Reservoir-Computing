@@ -1,0 +1,33 @@
+# Python bytecode files
+__pycache__/
+*.pyc
+*.pyo
+
+# Virtual environments
+venv/
+.env/
+env/
+
+# IDE/editor related files
+.vscode/
+.idea/
+
+# OS generated files
+.DS_Store      # macOS system files
+Thumbs.db      # Windows thumbnail cache
+
+# Log files
+*.log
+*.tmp
+
+# Jupyter related files
+.ipynb_checkpoints/
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
+
+# Other unnecessary files
+*.bak
+*.swp

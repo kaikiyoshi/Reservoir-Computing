@@ -1,0 +1,9 @@
+# ESN Hyperparameters
+esn_config:
+  N_u: 1
+  N_x: 3000
+  input_scale: 1
+  leaking_rate: 0.9
+  activation_func: "tanh"
+  rho: 0.9
+  rec_scale: 1.0
