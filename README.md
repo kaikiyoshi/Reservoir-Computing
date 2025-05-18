@@ -86,6 +86,70 @@ C:
     └─__pycache__
             esn.cpython-39.pyc
 
+C:
+├── .gitignore
+├── LICENSE
+├── README.md
+├── requirements.txt
+├── config/
+│ └── esn_config.yaml
+├── figures/
+│ ├── delay1.png
+│ ├── delay2.png
+│ ├── ecg_anomaly_detection.png
+│ ├── narma.png
+│ ├── nonlinearity.png
+│ ├── spoken_digit_recognition.png
+│ └── sunspot_prediction.png
+├── notebooks/
+│ ├── delay.ipynb
+│ ├── ecg_anomaly_detection.ipynb
+│ ├── esn.py
+│ ├── narma.ipynb
+│ ├── nonlinearity.ipynb
+│ ├── spoken_digit_recognition.ipynb
+│ └── sunspot_prediction.ipynb
+│
+│ └── .ipynb_checkpoints/
+│ ├── delay-checkpoint.ipynb
+│ ├── ecg_anomaly_detection-checkpoint.ipynb
+│ ├── narma-checkpoint.ipynb
+│ ├── nonlinearity-checkpoint.ipynb
+│ ├── spoken_digit_recognition-checkpoint.ipynb
+│ └── sunspot_prediction-checkpoint.ipynb
+│
+├── data/
+│ ├── anomaly.txt
+│ ├── normal.txt
+│ ├── SN_ms_tot_V2.0.txt
+│ └── Lyon_decimation_128/
+│ ├── s1_u10_d0.mat
+│ ├── s1_u10_d1.mat
+│ └── s1_u10_d2.mat
+│
+├── pycache/
+│ └── esn.cpython-310.pyc
+│
+└── src/
+├── delay.py
+├── ecg_anomaly_detection.py
+├── esn.py
+├── narma.py
+├── nonlinearity.py
+├── spoken_digit_recognition.py
+├── sunspot_prediction.py
+├── init.py
+├── data/
+│ ├── anomaly.txt
+│ ├── normal.txt
+│ ├── SN_ms_tot_V2.0.txt
+│ └── Lyon_decimation_128/
+│ ├── s1_u10_d0.mat
+│ ├── s1_u10_d1.mat
+│ └── s1_u10_d2.mat
+└── pycache/
+└── esn.cpython-39.pyc
+
 
 ## Setup
 
