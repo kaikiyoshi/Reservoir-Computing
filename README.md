@@ -13,145 +13,6 @@ Reservoir Computing models, particularly Echo State Networks (ESN), are used for
 - Visualization of results.
 - Support for various datasets.
 
-## File Structure
-
-C:
-│  .gitignore
-│  LICENSE
-│  README.md
-│  requirements.txt
-│
-├─config
-│      esn_config_yaml
-│
-├─figures
-│      delay1.png
-│      delay2.png
-│      ecg_anomaly_detection.png
-│      narma.png
-│      nonlinearity.png
-│      spoken_digit_recognition.png
-│      sunspot_prediction.png
-│
-├─notebooks
-│  │  delay.ipynb
-│  │  ecg_anomaly_detection.ipynb
-│  │  esn.py
-│  │  narma.ipynb
-│  │  nonlinearity.ipynb
-│  │  spoken_digit_recognition.ipynb
-│  │  sunspot_prediction.ipynb
-│  │
-│  ├─.ipynb_checkpoints
-│  │      delay-checkpoint.ipynb
-│  │      ecg_anomaly_detection-checkpoint.ipynb
-│  │      narma-checkpoint.ipynb
-│  │      nonlinearity-checkpoint.ipynb
-│  │      spoken_digit_recognition-checkpoint.ipynb
-│  │      sunspot_prediction-checkpoint.ipynb
-│  │
-│  ├─data
-│  │  │  anomaly.txt
-│  │  │  normal.txt
-│  │  │  SN_ms_tot_V2.0.txt
-│  │  │
-│  │  └─Lyon_decimation_128
-│  │          s1_u10_d0.mat
-│  │          s1_u10_d1.mat
-│  │          s1_u10_d2.mat
-│  │
-│  └─__pycache__
-│          esn.cpython-310.pyc
-│
-└─src
-    │  delay.py
-    │  ecg_anomaly_detection.py
-    │  esn.py
-    │  narma.py
-    │  nonlinearity.py
-    │  spoken_digit_recognition.py
-    │  sunspot_prediction.py
-    │  __init__.py
-    │
-    ├─data
-    │  │  anomaly.txt
-    │  │  normal.txt
-    │  │  SN_ms_tot_V2.0.txt
-    │  │
-    │  └─Lyon_decimation_128
-    │          s1_u10_d0.mat
-    │          s1_u10_d1.mat
-    │          s1_u10_d2.mat
-    │
-    └─__pycache__
-            esn.cpython-39.pyc
-
-C:
-├── .gitignore
-├── LICENSE
-├── README.md
-├── requirements.txt
-├── config/
-│ └── esn_config.yaml
-├── figures/
-│ ├── delay1.png
-│ ├── delay2.png
-│ ├── ecg_anomaly_detection.png
-│ ├── narma.png
-│ ├── nonlinearity.png
-│ ├── spoken_digit_recognition.png
-│ └── sunspot_prediction.png
-├── notebooks/
-│ ├── delay.ipynb
-│ ├── ecg_anomaly_detection.ipynb
-│ ├── esn.py
-│ ├── narma.ipynb
-│ ├── nonlinearity.ipynb
-│ ├── spoken_digit_recognition.ipynb
-│ └── sunspot_prediction.ipynb
-│
-│ └── .ipynb_checkpoints/
-│ ├── delay-checkpoint.ipynb
-│ ├── ecg_anomaly_detection-checkpoint.ipynb
-│ ├── narma-checkpoint.ipynb
-│ ├── nonlinearity-checkpoint.ipynb
-│ ├── spoken_digit_recognition-checkpoint.ipynb
-│ └── sunspot_prediction-checkpoint.ipynb
-│
-├── data/
-│ ├── anomaly.txt
-│ ├── normal.txt
-│ ├── SN_ms_tot_V2.0.txt
-│ └── Lyon_decimation_128/
-│ ├── s1_u10_d0.mat
-│ ├── s1_u10_d1.mat
-│ └── s1_u10_d2.mat
-│
-├── pycache/
-│ └── esn.cpython-310.pyc
-│
-└── src/
-├── delay.py
-├── ecg_anomaly_detection.py
-├── esn.py
-├── narma.py
-├── nonlinearity.py
-├── spoken_digit_recognition.py
-├── sunspot_prediction.py
-├── init.py
-├── data/
-│ ├── anomaly.txt
-│ ├── normal.txt
-│ ├── SN_ms_tot_V2.0.txt
-│ └── Lyon_decimation_128/
-│ ├── s1_u10_d0.mat
-│ ├── s1_u10_d1.mat
-│ └── s1_u10_d2.mat
-└── pycache/
-└── esn.cpython-39.pyc
-
-
-## Setup
 
 1. Install the required libraries:
 
@@ -163,34 +24,49 @@ C:
 
 ## Tasks and Implementations
 
-### Echo State Network (ESN)
+### Echo State Network (ESN) - NARMA Benchmark
 
-- **Purpose**: Implement an Echo State Network for the NARMA benchmark task.
-- **Files**: 
-    - `narma.py`: Code to solve the NARMA task using ESN.
-    - `esn.py`: Core ESN implementation.
-    - `esn_config_yaml`: Configuration file for ESN hyperparameters.
+- **Purpose**: Implement an Echo State Network for solving the NARMA benchmark task, a standard test for evaluating nonlinear temporal processing.
+- **Files**:  
+  - `narma.py`: ESN implementation for the NARMA task.  
+  - `esn.py`: Core ESN architecture and utilities.  
+  - `esn_config_yaml`: YAML configuration for hyperparameters.
 
 ### ECG Anomaly Detection
 
-- **Purpose**: Anomaly detection in ECG signals using ESNs.
-- **Files**: 
-    - `ecg_anomaly_detection.py`: Algorithm for anomaly detection in ECG data.
-    - `ecg_anomaly_detection.ipynb`: Jupyter notebook for running the anomaly detection task.
+- **Purpose**: Detect anomalies in electrocardiogram (ECG) signals using temporal dynamics captured by the ESN.
+- **Files**:  
+  - `ecg_anomaly_detection.py`: Main logic for detecting anomalies.  
+  - `ecg_anomaly_detection.ipynb`: Interactive notebook for demonstration and analysis.
+
+### Short-Term Memory (Delay Task)
+
+- **Purpose**: Evaluate the short-term memory capacity of the ESN by reconstructing input signals after fixed delays.
+- **Files**:  
+  - `delay.py`: Code to run the delay memory task.  
+  - `delay.ipynb`: Notebook visualization of memory performance.
+
+### Nonlinearity Task
+
+- **Purpose**: Test the ESN's ability to learn and represent nonlinear transformations of input signals.
+- **Files**:  
+  - `nonlinearity.py`: Code to model nonlinear input-output relationships.  
+  - `nonlinearity.ipynb`: Notebook for experimentation.
 
 ### Spoken Digit Recognition
 
-- **Purpose**: Implement a model for recognizing spoken digits.
-- **Files**: 
-    - `spoken_digit_recognition.py`: Script to train and test the spoken digit recognition model.
-    - `spoken_digit_recognition.ipynb`: Notebook for testing and evaluating the recognition task.
+- **Purpose**: Classify spoken digits from audio inputs using reservoir dynamics.
+- **Files**:  
+  - `spoken_digit_recognition.py`: Preprocessing and classification pipeline.  
+  - `spoken_digit_recognition.ipynb`: Evaluation and visualization notebook.
 
-### Sunspot Prediction
+### Sunspot Time-Series Prediction
 
-- **Purpose**: Predict sunspot activity using time-series prediction with ESN.
-- **Files**: 
-    - `sunspot_prediction.py`: Script for sunspot prediction using ESNs.
-    - `sunspot_prediction.ipynb`: Jupyter notebook for evaluating the sunspot prediction task.
+- **Purpose**: Forecast future sunspot activity based on historical time-series data.
+- **Files**:  
+  - `sunspot_prediction.py`: Time-series forecasting with ESN.  
+  - `sunspot_prediction.ipynb`: Visualization and result analysis.
+
 
 ## License
 
